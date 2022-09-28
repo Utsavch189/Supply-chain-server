@@ -5,5 +5,6 @@ urlpatterns = [
     path('jwt',jwt),
     path('createuser',createuser),
     path('sendotp',sendotp),
-    path('resetpassword',resetpassword)
+    path('resetpassword',resetpassword),
+    path('refresh_token',refresh_token),
 ]

@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .Jwt import auths
+from .Jwt import auths,Refresh_Token
 from .models import *
 import json
 from datetime import date
@@ -8,6 +8,7 @@ from .UID import creates
 import random
 from .Mail import otp_mail,passwordUpdate_mail
 from Admins.models import ApprovedUsers
+from django.http import HttpResponse
 
 
 @api_view(['POST','GET'])
@@ -25,11 +26,12 @@ def jwt(request):
                 "password":obj2.values('password')[0]['password'],
                 "name":obj2.values('name')[0]['name'],
                 "id":obj.values('id_no')[0]['id_no'],
-                "role":obj.values('role')[0]['role']
+                "role":obj.values('role')[0]['role'],
+                "phone":obj.values('phone')[0]['phone'],
+                "account_creates":obj.values('approved_at')[0]['approved_at'].strftime('%m/%d/%Y')
             }
             a=auths(data,"")
             JWTs=a.encoded_jwt()
-            print(JWTs)
             return Response({"token":JWTs,"status":200})
         else:
             return Response({"msg":"Invalid Credentials","status":400})
@@ -106,3 +108,20 @@ def resetpassword(request):
                 return Response({"msg":"error","status":400})
         else:
             return Response({"msg":"invalid OTP","status":401})
+
+
+
+@api_view(['POST'])
+def refresh_token(request):
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    tokens=body['token']
+
+    token=Refresh_Token(tokens)
+    if token:
+        return Response({"token":token,"status":200})
+    else:
+        return Response({"msg":"not expired yet!","status":400})
+
+
+

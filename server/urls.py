@@ -20,4 +20,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/',include('Auth.urls')),
     path('admins/',include('Admins.urls')),
+    path('manufacturer/',include('Manufacturer.urls')),
+    path('distributor/',include('Distributor.urls')),
+    path('retailer/',include('Retailer.urls'))
 ]

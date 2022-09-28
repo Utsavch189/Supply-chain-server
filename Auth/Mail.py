@@ -20,6 +20,7 @@ def approve_mail(email,name):
     send_mail(subject, body, mail_sender, [email], fail_silently=False)
 
 def removeUser_mail(email,name):
+    
     subject='Removed by Admin'
     body=f'{name} Sorry! You are removed from E-app'
     mail_sender = 'utsavpokemon9000chatterjee@gmail.com'
