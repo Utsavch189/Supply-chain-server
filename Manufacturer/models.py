@@ -37,7 +37,7 @@ class Distribute(models.Model):
     date=models.DateField(date.today())
 
     def __str__(self):
-        return self.user + ' '+'('+self.product_name+')'+' '+'( from:'+self.manufacturer_id+')'
+        return '('+self.product_id+')'+' '+'( from:'+self.manufacturer_id+')'
 
 
 class TotalProducts(models.Model):

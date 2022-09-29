@@ -8,6 +8,7 @@ from datetime import date
 from .Product_id import Product
 from .models import *
 from Admins.models import ApprovedUsers
+import random
 
 service=config('manufacturer_service')
 
@@ -148,14 +149,93 @@ def distribute(request):
     target_obj=obj.filter(manufacturer_id=Authorization(request,service))
     price=target_obj.values('price')[0]['price']
 
-    try:
-        x=Distribute(distributor_id=dist_id,product_id=p_id,manufacturer_id=manu_id,product_quantity=str(quant),total_price=str(int(quant)*int(price)),calculation_status=False,date=date.today())
-        x.save()
-        return Response({"msg":"Distributed","status":200})
-    except:
-        return Response({"msg":"error!","status":400})
+    ##stockOFThatProduct##
+    obb=ManufacturerStock.objects.filter(manufacturer_id=manu_id)
+    obb1=obb.filter(Product_id=p_id)
+    pre_stock=obb1.values('production_no')[0]['production_no']
+
+    if(int(pre_stock)-int(quant)>=0):
+
+        dist_obj1=Distribute.objects.filter(distributor_id=dist_id)
+        if dist_obj1.exists():
+            dist_obj2=dist_obj1.filter(manufacturer_id=manu_id)
+            if dist_obj2.exists():
+                dist_obj3=dist_obj2.filter(product_id=p_id)
+                if dist_obj3.exists():
+                    quant_val=dist_obj3.values('product_quantity')[0]['product_quantity']
+                    price_val=dist_obj3.values('total_price')[0]['total_price']
+                    dist_obj3.update(product_quantity=str(int(quant)+int(quant_val)))
+                    dist_obj3.update(total_price=str(int(price_val)+(int(price)*int(quant))))
+                else:
+                    try:
+                        x=Distribute(distributor_id=dist_id,product_id=p_id,manufacturer_id=manu_id,product_quantity=str(quant),total_price=str(int(quant)*int(price)),calculation_status=False,date=date.today())
+                        x.save()
+                        return Response({"msg":"Distributed","status":200})
+                    except:
+                        return Response({"msg":"error!","status":400})
+
+            else:
+                try:
+                    x=Distribute(distributor_id=dist_id,product_id=p_id,manufacturer_id=manu_id,product_quantity=str(quant),total_price=str(int(quant)*int(price)),calculation_status=False,date=date.today())
+                    x.save()
+                    return Response({"msg":"Distributed","status":200})
+                except:
+                    return Response({"msg":"error!","status":400})
+
+
+        else:
+            try:
+                x=Distribute(distributor_id=dist_id,product_id=p_id,manufacturer_id=manu_id,product_quantity=str(quant),total_price=str(int(quant)*int(price)),calculation_status=False,date=date.today())
+                x.save()
+                return Response({"msg":"Distributed","status":200})
+            except:
+                return Response({"msg":"error!","status":400})
+
+    else:
+        return Response({"msg":"Stock Limit exceed!","status":400})
+            
 
 
 
+@api_view(['POST'])
+def a_user(request):
+    if  (Authorization(request,service))==401:
+        return HttpResponse('Request Denied', status=401)
+    
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    u_id=body['u_id']
+    users=[]
+    history=[]
+    alls=ApprovedUsers.objects.filter(id_no=u_id)
+
+    data={
+        'name':alls.values('name')[0]['name'],
+        'phone':alls.values('phone')[0]['phone'],
+        'email':alls.values('email')[0]['email'],
+        'gender':alls.values('gender')[0]['gender'],
+        'whatsapp':alls.values('whatsapp_no')[0]['whatsapp_no'],
+        'role':alls.values('role')[0]['role'],
+        'id':alls.values('id_no')[0]['id_no'],
+        }
+    users.append(data)
+
+    colors=['#5780c1','#34568b','#6a8ec8','#ff8a80','#ff5b4d','#ffb9b3','#adc982','#88b04b','#dce8c9','#783a6d','#cd98c3','#b565a7','#c1253c','#fbeaec']
+    
+    proObj=SetProduct.objects.all()
+    dist_obj=Distribute.objects.filter(distributor_id=u_id)
+    my_obj=dist_obj.filter(manufacturer_id=Authorization(request,service))
+    for i in range(0,my_obj.count()):
+        num=random.randint(0,15)
+        p_name=proObj.filter(Product_id=my_obj.values('product_id')[i]['product_id'])
+        details={
+            "name":p_name.values('name')[0]['name'],
+            "quant":my_obj.values('product_quantity')[0]['product_quantity'],
+            "color":colors[num]
+        }
+        history.append(details)
+       
+
+    return Response({"user":users,"history":history})
 
 

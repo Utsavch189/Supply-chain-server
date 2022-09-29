@@ -31,7 +31,6 @@ def Authorization(request,types):
         header= request.META.get('HTTP_AUTHORIZATION')
         res = (header.split(' ', 1)[1])
         dec=jwt.decode(res, key, algorithms=algo)
-
         try:
             obj=ApprovedUsers.objects.filter(email=dec['uid'])
             obj_r=obj.filter(password=dec['password'])

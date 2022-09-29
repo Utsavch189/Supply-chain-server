@@ -8,6 +8,8 @@ from datetime import date
 from Auth.Mail import approve_mail,removeUser_mail,Reapprove_mail
 from django.http import HttpResponse
 from decouple import config
+from Manufacturer.models import SetProduct,Distribute
+import random
 
 service=config('admin_service')
 
@@ -219,10 +221,21 @@ def numbers_of_users(request):
     obj=ApprovedUsers.objects.filter(role='Manufacturer')
     obj1=ApprovedUsers.objects.filter(role='Retailer')
     obj2=ApprovedUsers.objects.filter(role='Distributor')
+
+    colors1=['#5780c1','#34568b','#6a8ec8','#ff8a80','#ff5b4d']
+    colors2=['#ffb9b3','#adc982','#88b04b','#dce8c9','#783a6d']
+    colors3=['#cd98c3','#b565a7','#c1253c','#fbeaec',"#556B2F"]
+    num1=random.randint(0,4)
+    num2=random.randint(0,4)
+    num3=random.randint(0,4)
+
     data=[
-        {'count':obj.count(),"name":"Manufacturer","color":"#6B8E23"},
-        {'count':obj2.count(),"name":"Distributor","color":"#556B2F"},
-        {'count':obj1.count(),"name":"Retailer","color":"#4682B4"}
+        {'count':obj.count(),"name":"Manufacturer","color":colors1[num1]},
+        {'count':obj2.count(),"name":"Distributor","color":colors2[num2]},
+        {'count':obj1.count(),"name":"Retailer","color":colors3[num3]}
     ]
 
     return Response(data)
+
+
+

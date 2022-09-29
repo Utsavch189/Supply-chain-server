@@ -8,5 +8,6 @@ urlpatterns = [
     path('approve_a_user',approve_a_user),
     path('delete_a_user',delete_a_user),
     path('reapprove_a_user',reapprove_a_user),
-    path('numbers_of_users',numbers_of_users)
+    path('numbers_of_users',numbers_of_users),
+
 ]
