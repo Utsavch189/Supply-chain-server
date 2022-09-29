@@ -40,7 +40,7 @@ class Distribute(models.Model):
         return '('+self.product_id+')'+' '+'( from:'+self.manufacturer_id+')'
 
 
-class TotalProducts(models.Model):
+class DayByDayProducts(models.Model):
     product_id=models.CharField(null=True,blank=True,max_length=25)
     manufacturer_id=models.CharField(null=True,blank=True,max_length=25)
     product_name=models.CharField(null=True,blank=True,max_length=25)

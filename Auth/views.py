@@ -8,7 +8,7 @@ from .UID import creates
 import random
 from .Mail import otp_mail,passwordUpdate_mail
 from Admins.models import ApprovedUsers
-from django.http import HttpResponse
+
 
 
 @api_view(['POST','GET'])

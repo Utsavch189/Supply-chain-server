@@ -1,16 +1,18 @@
 import json
+from sqlite3 import DatabaseError
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from Auth.Jwt import Authorization
 from django.http import HttpResponse
 from decouple import config
-from datetime import date
+from datetime import date,datetime
 from .Product_id import Product
 from .models import *
 from Admins.models import ApprovedUsers
 import random
 
 service=config('manufacturer_service')
+now = datetime.now()
 
 @api_view(['GET'])
 def get_products(request):
@@ -41,6 +43,15 @@ def get_products(request):
                     "quant":0
                     }
                     pro.append(data)
+            else:
+                data={
+                "name":obj.values('name')[i]['name'],
+                "id":obj.values('Product_id')[i]['Product_id'],
+                "price":obj.values('price')[i]['price'],
+                "desc":obj.values('description')[i]['description'],
+                "quant":0
+                }
+                pro.append(data)
 
 
         return Response({"data":pro,"status":200})
@@ -55,43 +66,53 @@ def set_delete_update_products(request):
     
     msg=body['msg']
     p_id=body['p_id']
+    name=body['name']
+    price=body['price']
+    desc=body['desc']
+
+    main_obj=SetProduct.objects.all()
+    if main_obj.filter(name=str(name).upper()).filter(price=price):
+        id_p=main_obj.filter(name=str(name).upper()).filter(price=price).values('Product_id')[0]['Product_id']
+        try:
+            x=SetProduct(manufacturer_id=Authorization(request,service),name=str(name).upper(),price=price,description=desc,Product_id=id_p)
+            x.save()
+            return Response({"msg":"successfully added","status":200})
+        except:
+            return Response({"msg":"error!","status":400})
     
-
-    if p_id and msg=='delete':
-        objst=SetProduct.objects.filter(Product_id=p_id)
-        objs=objst.filter(manufacturer_id=Authorization(request,service))
-        objs.delete()
-        return Response({"msg":"deleted","status":200})
     else:
-        name=body['name']
-        price=body['price']
-        desc=body['desc']
-        product_id=Product(name)
-        objsss=SetProduct.objects.filter(name=name)
-        objssss=objsss.filter(price=price)
-        target_obj=objssss.filter(manufacturer_id=Authorization(request,service))
-        if not p_id:
-            if not target_obj.exists():
-                try:
-                    x=SetProduct(manufacturer_id=Authorization(request,service),name=name,price=price,description=desc,Product_id=product_id)
-                    x.save()
-                    return Response({"msg":"successfully added","status":200})
-                except:
-                    return Response({"msg":"error!","status":400})
-            else:
-                return Response({"msg":"Duplicate product!","status":400})
-
-        else:      
+        if p_id and msg=='delete':
             objst=SetProduct.objects.filter(Product_id=p_id)
             objs=objst.filter(manufacturer_id=Authorization(request,service))
+            objs.delete()
+            return Response({"msg":"deleted","status":200})
+        else:
+            product_id=Product(name)
+            objsss=SetProduct.objects.filter(name=name)
+            objssss=objsss.filter(price=price)
+            target_obj=objssss.filter(manufacturer_id=Authorization(request,service))
+            if not p_id:
+                if not target_obj.exists():
+                    try:
+                        x=SetProduct(manufacturer_id=Authorization(request,service),name=str(name).upper(),price=price,description=desc,Product_id=product_id)
+                        x.save()
+                        return Response({"msg":"successfully added","status":200})
+                    except:
+                        return Response({"msg":"error!","status":400})
+                else:
+                    return Response({"msg":"Duplicate product!","status":400})
 
-            try: 
-                objs.update(name=name)
-                objs.update(price=price)
-                objs.update(description=desc)
-                return Response({"msg":"successfully updated","status":200})
-            except:
-                return Response({"msg":"error!","status":400})
+            else:      
+                objst=SetProduct.objects.filter(Product_id=p_id)
+                objs=objst.filter(manufacturer_id=Authorization(request,service))
+
+                try: 
+                    objs.update(name=name)
+                    objs.update(price=price)
+                    objs.update(description=desc)
+                    return Response({"msg":"successfully updated","status":200})
+                except:
+                    return Response({"msg":"error!","status":400})
 
 
 
@@ -131,6 +152,8 @@ def entry_production(request):
             return Response({"msg":"error!","status":400})
 
 
+
+
 @api_view(['POST'])
 def distribute(request):
     if  (Authorization(request,service))==401:
@@ -154,6 +177,8 @@ def distribute(request):
     obb1=obb.filter(Product_id=p_id)
     pre_stock=obb1.values('production_no')[0]['production_no']
 
+
+
     if(int(pre_stock)-int(quant)>=0):
 
         dist_obj1=Distribute.objects.filter(distributor_id=dist_id)
@@ -166,10 +191,13 @@ def distribute(request):
                     price_val=dist_obj3.values('total_price')[0]['total_price']
                     dist_obj3.update(product_quantity=str(int(quant)+int(quant_val)))
                     dist_obj3.update(total_price=str(int(price_val)+(int(price)*int(quant))))
+                    obb1.update(production_no=int(pre_stock)-int(quant))
+                    return Response({"msg":"Distributed","status":200})
                 else:
                     try:
                         x=Distribute(distributor_id=dist_id,product_id=p_id,manufacturer_id=manu_id,product_quantity=str(quant),total_price=str(int(quant)*int(price)),calculation_status=False,date=date.today())
                         x.save()
+                        obb1.update(production_no=int(pre_stock)-int(quant))
                         return Response({"msg":"Distributed","status":200})
                     except:
                         return Response({"msg":"error!","status":400})
@@ -178,6 +206,7 @@ def distribute(request):
                 try:
                     x=Distribute(distributor_id=dist_id,product_id=p_id,manufacturer_id=manu_id,product_quantity=str(quant),total_price=str(int(quant)*int(price)),calculation_status=False,date=date.today())
                     x.save()
+                    obb1.update(production_no=int(pre_stock)-int(quant))
                     return Response({"msg":"Distributed","status":200})
                 except:
                     return Response({"msg":"error!","status":400})
@@ -187,6 +216,7 @@ def distribute(request):
             try:
                 x=Distribute(distributor_id=dist_id,product_id=p_id,manufacturer_id=manu_id,product_quantity=str(quant),total_price=str(int(quant)*int(price)),calculation_status=False,date=date.today())
                 x.save()
+                obb1.update(production_no=int(pre_stock)-int(quant))
                 return Response({"msg":"Distributed","status":200})
             except:
                 return Response({"msg":"error!","status":400})
@@ -226,11 +256,11 @@ def a_user(request):
     dist_obj=Distribute.objects.filter(distributor_id=u_id)
     my_obj=dist_obj.filter(manufacturer_id=Authorization(request,service))
     for i in range(0,my_obj.count()):
-        num=random.randint(0,15)
+        num=random.randint(0,14)
         p_name=proObj.filter(Product_id=my_obj.values('product_id')[i]['product_id'])
         details={
             "name":p_name.values('name')[0]['name'],
-            "quant":my_obj.values('product_quantity')[0]['product_quantity'],
+            "quant":int(my_obj.values('product_quantity')[i]['product_quantity']),
             "color":colors[num]
         }
         history.append(details)
@@ -239,3 +269,47 @@ def a_user(request):
     return Response({"user":users,"history":history})
 
 
+@api_view(['POST'])
+def DayByDayEntry(request):
+    if  (Authorization(request,service))==401:
+        return HttpResponse('Request Denied', status=401)
+
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    p_id=body['p_id']
+    product_no=body['product_no']
+
+    obj=SetProduct.objects.filter(Product_id=p_id)
+    target_obj=obj.filter(manufacturer_id=Authorization(request,service))
+    name=target_obj.values('name')[0]['name']
+
+    dayBYdayProOBJ=DayByDayProducts.objects.filter(product_id=p_id)
+    dayBYdayProOBJ1=dayBYdayProOBJ.filter(manufacturer_id=Authorization(request,service))
+    today=now.strftime('%d-%m-%Y')
+
+    if dayBYdayProOBJ1.exists():
+        dates=dayBYdayProOBJ1.values('date')[0]['date'].strftime('%d-%m-%Y')
+        if(today==dates):
+            try:
+                pre_quant=dayBYdayProOBJ1.values('product_quantity')[0]['product_quantity']
+                dayBYdayProOBJ1.update(product_quantity=str(int(pre_quant)+int(product_no)))
+                return Response({"msg":"successfully added in daybyday record","status":200})
+            except:
+                return Response({"msg":"error in added in daybyday record","status":400})
+
+        else:
+            try:
+                y=DayByDayProducts(product_id=p_id,manufacturer_id=Authorization(request,service),product_name=name,product_quantity=product_no,date=date.today())
+                y.save()
+                return Response({"msg":"successfully created in daybyday record","status":200})
+            except:
+                return Response({"msg":"error in creation in daybyday record","status":400})
+    else:
+        try:
+            y=DayByDayProducts(product_id=p_id,manufacturer_id=Authorization(request,service),product_name=name,product_quantity=product_no,date=date.today())
+            y.save()
+            return Response({"msg":"successfully created in daybyday record","status":200})
+        except:
+            return Response({"msg":"error in creation in daybyday record","status":400})
+
+    return Response({"msg":"error","status":400})
