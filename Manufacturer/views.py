@@ -312,4 +312,71 @@ def DayByDayEntry(request):
         except:
             return Response({"msg":"error in creation in daybyday record","status":400})
 
-    return Response({"msg":"error","status":400})
+
+
+@api_view(['POST'])
+def post_dayBYdayDistribute(request):
+    if  (Authorization(request,service))==401:
+        return HttpResponse('Request Denied', status=401)
+
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+
+    dist_id=body['dist_id']
+    manu_id=Authorization(request,service)
+    p_id=body['p_id']
+    quant=body['quant']
+
+    main_obj=DayByDayProductsDistribute.objects.filter(product_id=p_id).filter(manufacturer_id=manu_id).filter(distributor_id=dist_id)
+    today=now.strftime('%d-%m-%Y')
+    if main_obj.exists():
+        dates=main_obj.values('date')[0]['date'].strftime('%d-%m-%Y')
+        if(today==dates):
+            try:
+                pre_quant=main_obj.values('product_quantity')[0]['product_quantity']
+                main_obj.update(product_quantity=str(int(quant)+int(pre_quant)))
+                return Response({"msg":"successfully added in daybyday record","status":200})
+            except:
+                return Response({"msg":"error in added in daybyday record","status":400})
+        else:
+            try:
+                y=DayByDayProductsDistribute(product_id=p_id,manufacturer_id=manu_id,product_quantity=quant,distributor_id=dist_id,date=date.today())
+                y.save()
+                return Response({"msg":"successfully created in daybyday record","status":200})
+            except:
+                return Response({"msg":"error in creation in daybyday record","status":400})
+
+    else:
+        try:
+            y=DayByDayProductsDistribute(product_id=p_id,manufacturer_id=manu_id,product_quantity=quant,distributor_id=dist_id,date=date.today())
+            y.save()
+            return Response({"msg":"successfully created in daybyday record","status":200})
+        except:
+            return Response({"msg":"error in creation in daybyday record","status":400})
+
+
+
+@api_view(['GET'])
+def get_dayBYdayDistribute(request):
+    if  (Authorization(request,service))==401:
+        return HttpResponse('Request Denied', status=401)
+
+    main_obj=DayByDayProductsDistribute.objects.filter(manufacturer_id=Authorization(request,service))
+    if main_obj.exists():
+        head=['Date','ProductID','ProductName','DistributorName','Quantity']
+        tittle=[]
+        data=[]
+        for i in range(0,main_obj.count()):
+            a_tittle=[main_obj.values('date')[i]['date']]
+            tittle.append(a_tittle)
+
+            p_id=main_obj.values('product_id')[i]['product_id']
+            p_name=SetProduct.objects.filter(Product_id=p_id).values('name')[0]['name']
+            dist_id=main_obj.values('distributor_id')[i]['distributor_id']
+            dist_name=ApprovedUsers.objects.filter(id_no=dist_id).values('name')[0]['name']
+            p_quant=main_obj.values('product_quantity')[i]['product_quantity']
+            a_data=[p_id,p_name,dist_name,p_quant]
+            data.append(a_data)
+        return Response({"head":head,"data":data,"tittle":tittle,"status":200})
+    else:
+        return Response({"msg":"no data!"})

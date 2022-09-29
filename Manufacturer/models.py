@@ -49,3 +49,14 @@ class DayByDayProducts(models.Model):
     
     def __str__(self) -> str:
         return self.product_name
+
+
+class DayByDayProductsDistribute(models.Model):
+    product_id=models.CharField(null=True,blank=True,max_length=25)
+    manufacturer_id=models.CharField(null=True,blank=True,max_length=25)
+    product_quantity=models.CharField(null=True,blank=True,max_length=10)
+    distributor_id=models.CharField(null=True,blank=True,max_length=25)
+    date=models.DateField(date.today())
+    
+    def __str__(self):
+        return '('+self.product_id+')'+' '+'( from:'+self.manufacturer_id+')'

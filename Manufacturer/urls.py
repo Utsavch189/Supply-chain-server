@@ -7,5 +7,7 @@ urlpatterns = [
     path('entry_production',entry_production),
     path('a_user',a_user),
     path('distribute',distribute),
-    path('DayByDayEntry',DayByDayEntry)
+    path('DayByDayEntry',DayByDayEntry),
+    path('post_dayBYdayDistribute',post_dayBYdayDistribute),
+    path('get_dayBYdayDistribute',get_dayBYdayDistribute)
 ]
