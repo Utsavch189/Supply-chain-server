@@ -35,7 +35,7 @@ def Authorization(request,types):
             obj=ApprovedUsers.objects.filter(email=dec['uid'])
             obj_r=obj.filter(password=dec['password'])
             if(obj_r) and dec['role']==types:
-                return dec['uid']
+                return dec['id']
             else:
                 return 401
 
