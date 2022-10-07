@@ -6,6 +6,13 @@ def otp_mail(email,name,otp):
     mail_sender = 'utsavpokemon9000chatterjee@gmail.com'
     send_mail(subject, body, mail_sender, [email], fail_silently=False)
 
+
+def middle_otp_mail(email,otp):
+    subject=f'OTP verification'
+    body=f'Your Verification OTP is {otp}'
+    mail_sender = 'utsavpokemon9000chatterjee@gmail.com'
+    send_mail(subject, body, mail_sender, [email], fail_silently=False)
+
 def passwordUpdate_mail(email,name):
     subject='Successful!'
     body=f'{name} Your Password is successfully updated'

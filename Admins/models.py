@@ -3,11 +3,11 @@ from datetime import date,datetime
 
 class ApprovedUsers(models.Model):
     name=models.CharField(null=True,blank=True,max_length=40)
-    phone=models.CharField(null=True,blank=True,max_length=12)
+    phone=models.CharField(null=True,blank=True,max_length=15)
     email=models.CharField(null=True,blank=True,max_length=40)
-    password=models.CharField(null=True,blank=True,max_length=6)
+    password=models.CharField(null=True,blank=True,max_length=256)
     gender=models.CharField(null=True,blank=True,max_length=6)
-    whatsapp_no=models.CharField(null=True,blank=True,max_length=12)
+    whatsapp_no=models.CharField(null=True,blank=True,max_length=15)
     role=models.CharField(null=True,blank=True,max_length=15)
     id_no=models.CharField(null=True,blank=True,max_length=25)
     approved_at=models.DateField(date.today())
@@ -18,11 +18,11 @@ class ApprovedUsers(models.Model):
 
 class DeletedUsers(models.Model):
     name=models.CharField(null=True,blank=True,max_length=40)
-    phone=models.CharField(null=True,blank=True,max_length=12)
+    phone=models.CharField(null=True,blank=True,max_length=15)
     email=models.CharField(null=True,blank=True,max_length=40)
-    password=models.CharField(null=True,blank=True,max_length=6)
+    password=models.CharField(null=True,blank=True,max_length=256)
     gender=models.CharField(null=True,blank=True,max_length=6)
-    whatsapp_no=models.CharField(null=True,blank=True,max_length=12)
+    whatsapp_no=models.CharField(null=True,blank=True,max_length=15)
     role=models.CharField(null=True,blank=True,max_length=15)
     id_no=models.CharField(null=True,blank=True,max_length=25)
     deleted_at=models.DateField(date.today())

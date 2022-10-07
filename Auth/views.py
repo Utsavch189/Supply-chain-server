@@ -6,9 +6,10 @@ import json
 from datetime import date
 from .UID import creates
 import random
-from .Mail import otp_mail,passwordUpdate_mail
+from .Mail import otp_mail,passwordUpdate_mail,middle_otp_mail
 from Admins.models import ApprovedUsers
-
+from .Enc_Dec import encryption,decryption
+from .Send_Sms import send
 
 
 @api_view(['POST','GET'])
@@ -16,14 +17,15 @@ def jwt(request):
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
     email=body['uid']
-    password=body['password']
+    password=(body['password'])
     if ApprovedUsers.objects.exists():
         obj=ApprovedUsers.objects.filter(email=email)
         obj2=obj.filter(password=password)
         if obj2.exists():
+            print(obj2.values('password')[0]['password'])
             data={
                 "uid":obj2.values('email')[0]['email'],
-                "password":obj2.values('password')[0]['password'],
+                "password":(obj2.values('password')[0]['password']),
                 "name":obj2.values('name')[0]['name'],
                 "id":obj.values('id_no')[0]['id_no'],
                 "role":obj.values('role')[0]['role'],
@@ -54,7 +56,7 @@ def createuser(request):
     try:
         idd=creates()
         print(4444)
-        x=Register(name=name,phone=number,email=email,password=password,gender=gender,whatsapp_no=whatsapp_no,role=role,id_no=idd,created_at=date.today())
+        x=Register(name=name,phone=number,email=email,password=(password),gender=gender,whatsapp_no=whatsapp_no,role=role,id_no=idd,created_at=date.today())
         x.save()
         return Response({"msg":"Successfully Registered","status":200})
     except:
@@ -66,16 +68,17 @@ def sendotp(request):
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
     email=body['email']
+    typed=body['type']
     obb=ApprovedUsers.objects.filter(email=email)
     if obb.exists():
         name=obb.values('name')[0]['name']
         otp=random.randint(1111,9999)
         try:
-            otpobj=OTP.objects.filter(email=email)
+            otpobj=OTP.objects.filter(target=email)
             if otpobj.exists():
                 otpobj.update(otp=otp)
             else:
-                x=OTP(email=email,otp=otp,created_at=datetime.now())
+                x=OTP(target=email,otp=otp,typed=typed,created_at=datetime.now())
                 x.save()
             otp_mail(email,name,otp)
             return Response({"msg":"successful","status":200})
@@ -97,17 +100,86 @@ def resetpassword(request):
     obb=ApprovedUsers.objects.filter(email=email)
     if obb.exists():
         name=obb.values('name')[0]['name']
-        otpobj=OTP.objects.filter(email=email)
+        otpobj=OTP.objects.filter(target=email).filter(typed='authenticated')
         otp=int(otpobj.values('otp')[0]['otp'])
+        
         if usersotp==otp:
             try:
                 obb.update(password=password)
                 passwordUpdate_mail(email,name)
+                otpobj.delete()
                 return Response({"msg":"Password Changed","status":200})
             except:
                 return Response({"msg":"error","status":400})
         else:
             return Response({"msg":"invalid OTP","status":401})
+
+
+
+
+
+@api_view(['POST'])
+def sendotp_middlereg(request):
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    email=body['email']
+    phone=body['phone']
+    typed=body['type']
+    obb=ApprovedUsers.objects.filter(email=email)
+    if obb.exists():
+        name=obb.values('name')[0]['name']
+        eotp=random.randint(1111,9999)
+        potp=random.randint(1111,9999)
+        try:
+            otpobj=OTP.objects.filter(target=email)
+            if otpobj.exists():
+                otpobj.update(otp=eotp)
+            otpobj1=OTP.objects.filter(target=phone)
+            if otpobj1.exists():
+                otpobj1.update(otp=potp)
+            else:
+                x=OTP(target=email,otp=eotp,typed=typed,created_at=datetime.now())
+                x.save()
+                y=OTP(target=phone,otp=potp,typed=typed,created_at=datetime.now())
+                y.save()
+            middle_otp_mail(email,eotp)
+            send(str(potp),phone)
+            return Response({"msg":"successful","status":200})
+        except:
+            return Response({"msg":"error","status":400})
+
+
+@api_view(['POST'])
+def verify_middlereg(request):
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    email=body['email']
+    phone=body['phone']
+
+    ef=body['ef']
+    es=body['es']
+    et=body['et']
+    efo=body['efo']
+
+    pf=body['pf']
+    ps=body['ps']
+    pt=body['pt']
+    pfo=body['pfo']
+
+    email_otp=str(str(ef)+str(es)+str(et)+str(efo))
+    phone_otp=str(str(pf)+str(ps)+str(pt)+str(pfo))
+
+    obj1=OTP.objects.filter(target=email).filter(typed='not-authenticated')
+    obj2=OTP.objects.filter(target=phone).filter(typed='not-authenticated')
+
+    if obj1.exists() and obj2.exists():
+        if email_otp==obj1.values('otp')[0]['otp'] and phone_otp==obj2.values('otp')[0]['otp']:
+            obj1.delete()
+            obj2.delete()
+            return Response({"msg":"successful","status":200})
+        else:
+            return Response({"msg":"wrong OTP","status":400})
+    return Response({"msg":"email or phone otp doesn't exists","status":400})
 
 
 

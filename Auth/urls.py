@@ -6,5 +6,7 @@ urlpatterns = [
     path('createuser',createuser),
     path('sendotp',sendotp),
     path('resetpassword',resetpassword),
+    path('sendotp_middlereg',sendotp_middlereg),
+    path('verify_middlereg',verify_middlereg),
     path('refresh_token',refresh_token),
 ]
