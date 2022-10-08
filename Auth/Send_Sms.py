@@ -1,5 +1,5 @@
-account_sid = 'AC0572e42865afab79a074591312cb5129'
-auth_token = '225394e6e9693ced178d9bcb9807617d'
+account_sid = 'ACf966c417a8f93c74f0b9bcbcb1c29206'
+auth_token = 'fc4543970aa5931656d90ede7d40c3c5'
 
 from twilio.rest import Client
 client = Client(account_sid, auth_token)
@@ -9,13 +9,13 @@ def send(strr,number):
     client.messages \
         .create(
             body=strr+' '+' is your verification otp',
-            from_ =  '+17375307119',
+            from_ =  '+19259403550',
             to =number
         )
    else:
     client.messages \
         .create(
             body=strr+' '+' is your verification otp',
-            from_ =  '+17375307119',
+            from_ =  '+19259403550',
             to ='+91'+number
         )
