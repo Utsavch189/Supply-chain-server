@@ -10,6 +10,7 @@ from .Mail import otp_mail,passwordUpdate_mail,middle_otp_mail
 from Admins.models import ApprovedUsers
 from .Enc_Dec import encryption,decryption
 from .Send_Sms import send
+from django.contrib.auth.hashers import make_password,check_password
 
 
 @api_view(['POST','GET'])
@@ -20,12 +21,12 @@ def jwt(request):
     password=(body['password'])
     if ApprovedUsers.objects.exists():
         obj=ApprovedUsers.objects.filter(email=email)
-        obj2=obj.filter(password=password)
-        if obj2.exists():
+        passwords=obj.values('password')[0]['password']
+        if check_password(password,passwords):
             data={
-                "uid":obj2.values('email')[0]['email'],
-                "password":(obj2.values('password')[0]['password']),
-                "name":obj2.values('name')[0]['name'],
+                "uid":obj.values('email')[0]['email'],
+                "password":(obj.values('password')[0]['password']),
+                "name":obj.values('name')[0]['name'],
                 "id":obj.values('id_no')[0]['id_no'],
                 "role":obj.values('role')[0]['role'],
                 "phone":obj.values('phone')[0]['phone'],
@@ -54,7 +55,7 @@ def createuser(request):
    
     try:
         idd=creates()
-        x=Register(name=name,phone=number,email=email,password=(password),gender=gender,whatsapp_no=whatsapp_no,role=role,id_no=idd,created_at=date.today())
+        x=Register(name=name,phone=number,email=email,password=make_password(password),gender=gender,whatsapp_no=whatsapp_no,role=role,id_no=idd,created_at=date.today())
         x.save()
         return Response({"msg":"Successfully Registered","status":200})
     except:
@@ -121,7 +122,7 @@ def resetpassword(request):
         
         if usersotp==otp:
             try:
-                obb.update(password=password)
+                obb.update(password=make_password(password))
                 passwordUpdate_mail(email,name)
                 otpobj.delete()
                 return Response({"msg":"Password Changed","status":200})
@@ -259,7 +260,7 @@ def is_block(request):
                 obj1.delete()
                 return Response({"status":200})
             else:
-                return Response({"status":400})
+                return Response({"status":400,"time-left":30-(int(datetime.now().time().strftime("%M"))-int(time_created_minute))})
         else:
             obj.delete()
             obj1.delete()

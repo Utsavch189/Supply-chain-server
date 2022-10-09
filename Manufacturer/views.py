@@ -21,8 +21,8 @@ def get_products(request):
         return HttpResponse('Request Denied', status=401)
     obj=SetProduct.objects.filter(manufacturer_id=Authorization(request,service))
     stock_obj=ManufacturerStock.objects.filter(manufacturer_id=Authorization(request,service))
+    pro=[]
     if obj.exists():
-        pro=[]
         for i in range(0,obj.count()):
             if stock_obj.exists():
                 stock=stock_obj.filter(Product_id=obj.values('Product_id')[i]['Product_id'])
@@ -55,6 +55,8 @@ def get_products(request):
                 pro.append(data)
 
 
+        return Response({"data":pro,"status":200})
+    else:
         return Response({"data":pro,"status":200})
 
 
@@ -325,10 +327,10 @@ def get_dayBYdayDistribute(request):
         return HttpResponse('Request Denied', status=401)
 
     main_obj=DayByDayProductsDistribute.objects.filter(manufacturer_id=Authorization(request,service))
+    head=['Date','ProductID','ProductName','DistributorName','Quantity']
+    tittle=[]
+    data=[]
     if main_obj.exists():
-        head=['Date','ProductID','ProductName','DistributorName','Quantity']
-        tittle=[]
-        data=[]
         for i in range(0,main_obj.count()):
             a_tittle=[main_obj.values('date')[i]['date']]
             tittle.append(a_tittle)
@@ -342,7 +344,7 @@ def get_dayBYdayDistribute(request):
             data.append(a_data)
         return Response({"head":head,"data":data,"tittle":tittle,"status":200})
     else:
-        return Response({"msg":"no data!"})
+        return Response({"head":head,"data":data,"tittle":tittle,"status":200})
 
 
 

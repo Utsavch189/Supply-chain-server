@@ -15,6 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
+from django.contrib.auth.hashers import make_password,check_password
+
+admin.site.site_header='U-HUB Administrator'
+admin.site.site_title='U-HUB Portal'
+admin.site.index_title='Utsav Chatterjee'
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),

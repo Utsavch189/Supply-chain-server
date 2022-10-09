@@ -117,7 +117,6 @@ def approve_a_user(request):
             whatsapp=obj.values('whatsapp_no')[0]['whatsapp_no']
             role=obj.values('role')[0]['role']
             idd=obj.values('id_no')[0]['id_no']
-            print(name)
             try:
                 x=ApprovedUsers(name=name,phone=phone,email=email,password=password,gender=gender,whatsapp_no=whatsapp,role=role,id_no=idd,approved_at=date.today())
                 x.save()

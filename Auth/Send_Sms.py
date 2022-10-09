@@ -1,21 +1,22 @@
-account_sid = 'ACf966c417a8f93c74f0b9bcbcb1c29206'
-auth_token = 'fc4543970aa5931656d90ede7d40c3c5'
+import vonage
 
-from twilio.rest import Client
-client = Client(account_sid, auth_token)
+client = vonage.Client(key="ffe48696", secret="VCQX7CJC5haudGbO")
+sms = vonage.Sms(client)
 
 def send(strr,number):
    if(number[0:3]=='+91'):
-    client.messages \
-        .create(
-            body=strr+' '+' is your verification otp',
-            from_ =  '+19259403550',
-            to =number
-        )
+        sms.send_message(
+    {
+        "from": "U-HUB",
+        "to": str(number).replace('+',''),
+        "text": strr+' '+' is your verification otp',
+    }
+)
    else:
-    client.messages \
-        .create(
-            body=strr+' '+' is your verification otp',
-            from_ =  '+19259403550',
-            to ='+91'+number
-        )
+        sms.send_message(
+    {
+        "from": "U-HUB",
+        "to": '91'+number,
+        "text": strr+' '+' is your verification otp',
+    }
+)

@@ -2,7 +2,7 @@ import jwt
 from datetime import datetime,timedelta
 from Admins.models import ApprovedUsers
 from decouple import config
-
+from django.contrib.auth.hashers import check_password
 
 now = datetime.now()
 
@@ -15,7 +15,8 @@ def Merge(dict1, dict2):
 
 def expiry_date():
     exp_date=datetime.now()+timedelta(3)
-    return {"exp_date":exp_date.strftime('%d-%m-%Y')}
+    password_expiry=datetime.now()+timedelta(30)
+    return {"exp_date":exp_date.strftime('%d-%m-%Y'),"password_exp_date":password_expiry.strftime('%d-%m-%Y')}
 
 class auths:
     def __init__(self,payload,enc):
@@ -33,8 +34,8 @@ def Authorization(request,types):
         dec=jwt.decode(res, key, algorithms=algo)
         try:
             obj=ApprovedUsers.objects.filter(email=dec['uid'])
-            obj_r=obj.filter(password=dec['password'])
-            if(obj_r) and dec['role']==types:
+            obj2=obj.filter(password=dec['password'])
+            if obj2.exists() and dec['role']==types:
                 return dec['id']
             else:
                 return 401
