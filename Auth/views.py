@@ -235,7 +235,6 @@ def refresh_token(request):
     tokens=body['token']
 
     token=Refresh_Token(tokens)
-    print(token)
     if token=='delete':
         return Response({"msg":"delete","status":200})
     else:
@@ -271,6 +270,7 @@ def is_block(request):
             return Response({"status":200})
     else:
         return Response({"status":200})
+
 
 
 

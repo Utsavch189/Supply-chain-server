@@ -55,14 +55,17 @@ def Refresh_Token(token):
         today=now.strftime('%d-%m-%Y')
         print(today>dec['exp_date'],"refresh token")
         print('password exp date',30-(int(today[0:2])-int(dec['password_exp_date'][0:2])))
-        if dec['password_exp_date']>today:
-            return 'delete'
-        if(today>dec['exp_date']):
-            email=dec['uid']
-            password=dec['password']
-            if ApprovedUsers.objects.exists():
-                obj=ApprovedUsers.objects.filter(email=email)
-                obj2=obj.filter(password=password)
+        email=dec['uid']
+        password=dec['password']
+        if ApprovedUsers.objects.exists():
+            obj=ApprovedUsers.objects.filter(email=email)
+            obj2=obj.filter(password=password)
+            if dec['password_exp_date']>today:
+                obj2.update(password='')
+                return 'delete'
+            print("token exp date",dec['exp_date'])
+            if(today>dec['exp_date']):
+
                 if obj2.exists():
                     data={
                         "uid":obj2.values('email')[0]['email'],
