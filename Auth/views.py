@@ -235,10 +235,14 @@ def refresh_token(request):
     tokens=body['token']
 
     token=Refresh_Token(tokens)
-    if token:
-        return Response({"token":token,"status":200})
+    print(token)
+    if token=='delete':
+        return Response({"msg":"delete","status":200})
     else:
-        return Response({"msg":"not expired yet!","status":400})
+        if token:
+            return Response({"token":token,"status":200})
+        else:
+            return Response({"msg":"not expired yet!","status":400})
 
 
 @api_view(['POST'])

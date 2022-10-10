@@ -54,6 +54,9 @@ def Refresh_Token(token):
 
         today=now.strftime('%d-%m-%Y')
         print(today>dec['exp_date'],"refresh token")
+        print('password exp date',30-(int(today[0:2])-int(dec['password_exp_date'][0:2])))
+        if dec['password_exp_date']>today:
+            return 'delete'
         if(today>dec['exp_date']):
             email=dec['uid']
             password=dec['password']
@@ -71,6 +74,7 @@ def Refresh_Token(token):
                         "account_creates":obj.values('approved_at')[0]['approved_at'].strftime('%m/%d/%Y')
                     }
                     return jwt.encode(Merge(data,expiry_date()),key,algorithm=algo)
+
 
 
 
