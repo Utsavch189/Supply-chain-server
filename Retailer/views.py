@@ -9,6 +9,7 @@ import random
 from .models import *
 from Distributor.models import *
 from Manufacturer.models import SetProduct
+from Admins.models import ApprovedUsers
 
 
 service=config('retailer_service')
@@ -51,11 +52,11 @@ def receive_stock_history(request):
     if  (Authorization(request,service))==401:
         return HttpResponse('Request Denied', status=401)
     main_obj=DayByDayProductsDistributeToRetailer.objects.filter(retailer_id=Authorization(request,service))
-    prod_head=['ProductID','ProductName','Quantity','date']
+    prod_head=['Distributor','ProductID','ProductName','Quantity','date']
     prod_data=[]
     if main_obj.exists():
         for i in range(0,main_obj.count()):
-            data=[main_obj.values('product_id')[i]['product_id'],SetProduct.objects.filter(Product_id=main_obj.values('product_id')[i]['product_id']).values('name')[0]['name'],main_obj.values('product_quantity')[i]['product_quantity'],main_obj.values('date')[i]['date']]
+            data=[ApprovedUsers.objects.filter(id=main_obj.values('distributor_id')[i]['distributor_id']).values('name')[0]['name'],main_obj.values('product_id')[i]['product_id'],SetProduct.objects.filter(Product_id=main_obj.values('product_id')[i]['product_id']).values('name')[0]['name'],main_obj.values('product_quantity')[i]['product_quantity'],main_obj.values('date')[i]['date']]
             prod_data.append(data)
         return Response({"data":prod_data,"head":prod_head,"status":200})
     else:

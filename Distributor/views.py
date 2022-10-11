@@ -51,7 +51,7 @@ def receive_stock_history(request):
     if  (Authorization(request,service))==401:
         return HttpResponse('Request Denied', status=401)
     main_obj=DayByDayProductsDistribute.objects.filter(distributor_id=Authorization(request,service))
-    prod_head=['Distributor','ProductID','ProductName','Quantity','date']
+    prod_head=['Manufacturer','ProductID','ProductName','Quantity','date']
     prod_data=[]
     if main_obj.exists():
         for i in range(0,main_obj.count()):
