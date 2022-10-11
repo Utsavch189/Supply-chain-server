@@ -22,21 +22,24 @@ def jwt(request):
     if ApprovedUsers.objects.exists():
         obj=ApprovedUsers.objects.filter(email=email)
         passwords=obj.values('password')[0]['password']
-        if check_password(password,passwords):
-            data={
-                "uid":obj.values('email')[0]['email'],
-                "password":(obj.values('password')[0]['password']),
-                "name":obj.values('name')[0]['name'],
-                "id":obj.values('id_no')[0]['id_no'],
-                "role":obj.values('role')[0]['role'],
-                "phone":obj.values('phone')[0]['phone'],
-                "account_creates":obj.values('approved_at')[0]['approved_at'].strftime('%m/%d/%Y')
-            }
-            a=auths(data,"")
-            JWTs=a.encoded_jwt()
-            return Response({"token":JWTs,"status":200})
+        if not passwords:
+            return Response({"status":253,"msg":"password expired"})
         else:
-            return Response({"msg":"Invalid Credentials","status":400})
+            if check_password(password,passwords):
+                data={
+                    "uid":obj.values('email')[0]['email'],
+                    "password":(obj.values('password')[0]['password']),
+                    "name":obj.values('name')[0]['name'],
+                    "id":obj.values('id_no')[0]['id_no'],
+                    "role":obj.values('role')[0]['role'],
+                    "phone":obj.values('phone')[0]['phone'],
+                    "account_creates":obj.values('approved_at')[0]['approved_at'].strftime('%m/%d/%Y')
+                }
+                a=auths(data,"")
+                JWTs=a.encoded_jwt()
+                return Response({"token":JWTs,"status":200})
+            else:
+                return Response({"msg":"Invalid Credentials","status":400})
     else:
         return Response({"msg":"Invalid Credentials","status":400})
 
@@ -258,7 +261,7 @@ def is_block(request):
         if(date.today().strftime('%m/%d/%Y')==created_date):
             time_created_minute=obj.values('created_at_time')[0]['created_at_time'].strftime("%M")
             time_created_hour=obj.values('created_at_time')[0]['created_at_time'].strftime("%H")
-            if datetime.now().time().strftime("%H")==time_created_hour and int(datetime.now().time().strftime("%M"))-int(time_created_minute)==30:
+            if datetime.now().time().strftime("%H")==time_created_hour and int(datetime.now().time().strftime("%M"))-int(time_created_minute)>=30:
                 obj.delete()
                 obj1.delete()
                 return Response({"status":200})
