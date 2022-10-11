@@ -10,7 +10,7 @@ from .models import *
 from Distributor.models import *
 from Manufacturer.models import SetProduct
 from Admins.models import ApprovedUsers
-
+from CommonModules.StockUpdate import Stock
 
 service=config('retailer_service')
 now = datetime.now()
@@ -20,6 +20,8 @@ def get_stock(request):
     if  (Authorization(request,service))==401:
         return HttpResponse('Request Denied', status=401)
 
+    y=Stock(Authorization(request,service))
+    y.updateforretailer()
     main_obj=RetailerStock.objects.filter(retailer_id=Authorization(request,service))
     prod_head=['ProductID','ProductName','Quantity','Price/Unit']
     colors=['#5780c1','#34568b','#6a8ec8','#ff8a80','#ff5b4d','#ffb9b3','#adc982','#88b04b','#dce8c9','#783a6d','#cd98c3','#b565a7','#c1253c','#fbeaec']
@@ -37,7 +39,9 @@ def get_stock(request):
             details={
             "name":main_obj.values('product_name')[i]['product_name'],
             "quant":int(main_obj.values('product_quantity')[i]['product_quantity']),
-            "color":colors[num]
+            "color":colors[num],
+            "legendFontColor": "#7F7F7F",
+            "legendFontSize": 15
             }
             prod_data.append(data)
             graph_data.append(details)

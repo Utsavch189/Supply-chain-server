@@ -229,9 +229,9 @@ def numbers_of_users(request):
     num3=random.randint(0,4)
 
     data=[
-        {'count':obj.count(),'name':"Manufacturer",'color':colors1[num1]},
-        {'count':obj2.count(),'name':"Distributor",'color':colors2[num2]},
-        {'count':obj1.count(),'name':"Retailer",'color':colors3[num3]}
+        {'count':obj.count(),'name':"Manufacturer",'color':colors1[num1],"legendFontColor": "#7F7F7F","legendFontSize": 15},
+        {'count':obj2.count(),'name':"Distributor",'color':colors2[num2],"legendFontColor": "#7F7F7F","legendFontSize": 15},
+        {'count':obj1.count(),'name':"Retailer",'color':colors3[num3],"legendFontColor": "#7F7F7F","legendFontSize": 15}
     ]
 
     return Response(data)

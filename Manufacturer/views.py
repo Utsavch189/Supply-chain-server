@@ -245,7 +245,9 @@ def a_user(request):
         details={
             "name":p_name.values('name')[0]['name'],
             "quant":int(my_obj.values('product_quantity')[i]['product_quantity']),
-            "color":colors[num]
+            "color":colors[num],
+            "legendFontColor": "#7F7F7F",
+            "legendFontSize": 15
         }
         history.append(details)
        
@@ -363,7 +365,9 @@ def get_DayByDayEntry(request):
             data={
                 "name":main_obj.values('product_name')[i]['product_name'],
                 "count":main_obj.values('product_quantity')[i]['product_quantity'],
-                "color":colors[num]
+                "color":colors[num],
+                "legendFontColor": "#7F7F7F",
+                "legendFontSize": 15
             }
             stats.append(data)
         return Response({"data":stats,"status":200})
