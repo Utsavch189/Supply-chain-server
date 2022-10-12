@@ -130,7 +130,7 @@ def resetpassword(request):
                 otpobj.delete()
                 return Response({"msg":"Password Changed","status":200})
             except:
-                pass
+                return Response({"msg":"error","status":400})
         else:
             tried=otpobj.values('tried')[0]['tried']
             if tried<2:
@@ -305,6 +305,8 @@ def is_block(request):
                 return Response({"status":200})
         else:
             return Response({"status":200})
+    else:
+        return Response({"msg":"running"})
 
 
 
