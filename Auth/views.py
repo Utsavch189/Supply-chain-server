@@ -23,7 +23,7 @@ def jwt(request):
         obj=ApprovedUsers.objects.filter(email=email)
         passwords=obj.values('password')[0]['password']
         if not passwords:
-            return Response({"status":253,"msg":"password expired"})
+            return Response({"status":253,"msg":"Password expired. Create a new one"})
         else:
             if check_password(password,passwords):
                 data={
@@ -76,7 +76,7 @@ def sendotp(request):
         name=obb.values('name')[0]['name']
         otp=random.randint(1111,9999)
         try:
-            otpobj=OTP.objects.filter(target=email).filter(typed='authenticated')
+            otpobj=OTP.objects.filter(target=email).filter(typed='authenticated').filter(blocked=False)
             if otpobj.exists():
                 created_date=otpobj.values('created_at_date')[0]['created_at_date'].strftime('%m/%d/%Y')
                 if(date.today().strftime('%m/%d/%Y')==created_date):
@@ -120,7 +120,7 @@ def resetpassword(request):
     obb=ApprovedUsers.objects.filter(email=email)
     if obb.exists():
         name=obb.values('name')[0]['name']
-        otpobj=OTP.objects.filter(target=email).filter(typed='authenticated')
+        otpobj=OTP.objects.filter(target=email).filter(typed='authenticated').filter(blocked=False)
         otp=int(otpobj.values('otp')[0]['otp'])
         
         if usersotp==otp:
@@ -130,9 +130,20 @@ def resetpassword(request):
                 otpobj.delete()
                 return Response({"msg":"Password Changed","status":200})
             except:
-                return Response({"msg":"error","status":400})
+                pass
         else:
-            return Response({"msg":"invalid OTP","status":401})
+            tried=otpobj.values('tried')[0]['tried']
+            if tried<2:
+                otps=random.randint(1111,9999)
+                otpobj.update(otp=otps)
+                otpobj.update(tried=int(tried)+1)
+                otpobj.update(created_at_time=datetime.now().time())
+                otp_mail(email,name,otps)
+                return Response({"msg":f"not matching {3-otpobj.values('tried')[0]['tried']} tries left","status":400})
+            else:
+                otpobj.update(blocked=True)
+                return Response({"msg":"max trying limit exceed","status":400})
+    return Response({"msg":"email or phone otp doesn't exists","status":400})
 
 
 
@@ -254,25 +265,46 @@ def is_block(request):
     email=body['email']
     phone=body['phone']
 
-    obj=OTP.objects.filter(target=email).filter(typed='not-authenticated').filter(blocked=True)
-    obj1=OTP.objects.filter(target=phone).filter(typed='not-authenticated').filter(blocked=True)
-    if obj.exists() and obj1.exists():
-        created_date=obj.values('created_at_date')[0]['created_at_date'].strftime('%m/%d/%Y')
-        if(date.today().strftime('%m/%d/%Y')==created_date):
-            time_created_minute=obj.values('created_at_time')[0]['created_at_time'].strftime("%M")
-            time_created_hour=obj.values('created_at_time')[0]['created_at_time'].strftime("%H")
-            if datetime.now().time().strftime("%H")==time_created_hour and int(datetime.now().time().strftime("%M"))-int(time_created_minute)>=30:
+    if email and phone:
+        obj=OTP.objects.filter(target=email).filter(typed='not-authenticated').filter(blocked=True)
+        obj1=OTP.objects.filter(target=phone).filter(typed='not-authenticated').filter(blocked=True)
+        if obj.exists() and obj1.exists():
+            created_date=obj.values('created_at_date')[0]['created_at_date'].strftime('%m/%d/%Y')
+            if(date.today().strftime('%m/%d/%Y')==created_date):
+                time_created_minute=obj.values('created_at_time')[0]['created_at_time'].strftime("%M")
+                time_created_hour=obj.values('created_at_time')[0]['created_at_time'].strftime("%H")
+                if datetime.now().time().strftime("%H")==time_created_hour and int(datetime.now().time().strftime("%M"))-int(time_created_minute)>=30:
+                    obj.delete()
+                    obj1.delete()
+                    return Response({"status":200})
+                else:
+                    return Response({"status":400,"time-left":30-(int(datetime.now().time().strftime("%M"))-int(time_created_minute))})
+            else:
                 obj.delete()
                 obj1.delete()
                 return Response({"status":200})
-            else:
-                return Response({"status":400,"time-left":30-(int(datetime.now().time().strftime("%M"))-int(time_created_minute))})
         else:
-            obj.delete()
-            obj1.delete()
             return Response({"status":200})
-    else:
-        return Response({"status":200})
+    elif email and (not phone):
+        obj=OTP.objects.filter(target=email).filter(typed='authenticated').filter(blocked=True)
+       
+        if obj.exists():
+            created_date=obj.values('created_at_date')[0]['created_at_date'].strftime('%m/%d/%Y')
+            if(date.today().strftime('%m/%d/%Y')==created_date):
+                time_created_minute=obj.values('created_at_time')[0]['created_at_time'].strftime("%M")
+                time_created_hour=obj.values('created_at_time')[0]['created_at_time'].strftime("%H")
+                if datetime.now().time().strftime("%H")==time_created_hour and int(datetime.now().time().strftime("%M"))-int(time_created_minute)>=30:
+                    obj.delete()
+                    obj1.delete()
+                    return Response({"status":200})
+                else:
+                    return Response({"status":400,"time-left":30-(int(datetime.now().time().strftime("%M"))-int(time_created_minute))})
+            else:
+                obj.delete()
+                obj1.delete()
+                return Response({"status":200})
+        else:
+            return Response({"status":200})
 
 
 
