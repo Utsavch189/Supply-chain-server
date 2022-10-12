@@ -36,7 +36,7 @@ urlpatterns = [
     path('retailer/',include('Retailer.urls'))
 ]
 
-if OTP.objects.all().exists():
+if OTP.objects.exists():
     obj=OTP.objects.all()
     for i in range(0,obj.count()):
         created_date=obj.values('created_at_date')[i]['created_at_date'].strftime('%m/%d/%Y')

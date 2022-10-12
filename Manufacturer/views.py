@@ -11,6 +11,7 @@ from Admins.models import ApprovedUsers
 import random
 from CommonModules.StockUpdate import Stock
 from Distributor.models import DistributorStock
+from CommonModules.SortListofObj import sortObj
 
 service=config('manufacturer_service')
 now = datetime.now()
@@ -370,7 +371,8 @@ def get_DayByDayEntry(request):
                 "legendFontSize": 15
             }
             stats.append(data)
-        return Response({"data":stats,"status":200})
+        sorted_data=sortObj(stats,'count')
+        return Response({"data":sorted_data,"status":200,"whole_data":stats})
     else:
         return Response({"data":stats,"status":200})
 

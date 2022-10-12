@@ -10,6 +10,7 @@ from .models import *
 from Admins.models import ApprovedUsers
 from Manufacturer.models import DayByDayProductsDistribute,SetProduct
 from CommonModules.StockUpdate import Stock
+from CommonModules.SortListofObj import sortObj
 
 service=config('distributor_service')
 now = datetime.now()
@@ -45,7 +46,9 @@ def get_stock(request):
             prod_data.append(data)
             graph_data.append(details)
             products.append(datas)
-        return Response({"data":prod_data,"head":prod_head,"stock":graph_data,"status":200,"products":products})
+            
+        sorted_data=sortObj(graph_data,'quant')
+        return Response({"data":prod_data,"head":prod_head,"stock":sorted_data,"status":200,"products":products})
     else:
         return Response({"data":prod_data,"head":prod_head,"stock":graph_data,"status":200,"products":products})
 
