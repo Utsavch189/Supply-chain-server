@@ -26,5 +26,5 @@ class OTP(models.Model):
     typed=models.CharField(null=True,blank=True,max_length=30)
     tried=models.IntegerField(null=True,blank=True,default=0)
     blocked=models.BooleanField(default=False)
-    created_at_date=models.DateField(default=date.today())
-    created_at_time=models.TimeField(default=datetime.now().time())
+    created_at_date=models.DateField(date.today())
+    created_at_time=models.TimeField(datetime.now().time())
