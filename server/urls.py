@@ -42,3 +42,4 @@ if OTP.objects.exists():
         created_date=obj.values('created_at_date')[i]['created_at_date'].strftime('%m/%d/%Y')
         if(date.today().strftime('%m/%d/%Y')!=created_date):
             obj.delete()
+#print(make_password('admin'))
