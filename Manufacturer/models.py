@@ -3,7 +3,7 @@ from datetime import date
 
 
 class SetProduct(models.Model):
-    manufacturer_id=models.CharField(null=True,blank=True,max_length=50)
+    manufacturer_id=models.CharField(null=True,blank=True,max_length=25)
     name=models.CharField(null=True,blank=True,max_length=25)
     price=models.CharField(null=True,blank=True,max_length=10)
     description=models.CharField(null=True,blank=True,max_length=50)
@@ -15,12 +15,12 @@ class SetProduct(models.Model):
 
 
 class ManufacturerStock(models.Model):
-    manufacturer_id=models.CharField(null=True,blank=True,max_length=50)
+    manufacturer_id=models.CharField(null=True,blank=True,max_length=25)
     Product_id=models.CharField(null=True,blank=True,max_length=30)
     name=models.CharField(null=True,blank=True,max_length=25)
     price=models.CharField(null=True,blank=True,max_length=10)
     description=models.CharField(null=True,blank=True,max_length=50)
-    production_no=models.CharField(null=True,blank=True,max_length=10)
+    production_no=models.CharField(null=True,blank=True,max_length=20)
     production_date=models.DateField(date.today())
 
     def __str__(self):
@@ -28,11 +28,11 @@ class ManufacturerStock(models.Model):
 
 
 class Distribute(models.Model):
-    distributor_id=models.CharField(null=True,blank=True,max_length=50)
+    distributor_id=models.CharField(null=True,blank=True,max_length=25)
     product_id=models.CharField(null=True,blank=True,max_length=30)
-    manufacturer_id=models.CharField(null=True,blank=True,max_length=50)
-    product_quantity=models.CharField(null=True,blank=True,max_length=10)
-    total_price=models.CharField(null=True,blank=True,max_length=10)
+    manufacturer_id=models.CharField(null=True,blank=True,max_length=25)
+    product_quantity=models.CharField(null=True,blank=True,max_length=20)
+    total_price=models.CharField(null=True,blank=True,max_length=20)
     calculation_status=models.BooleanField(default=False)
     date=models.DateField(date.today())
 
@@ -42,9 +42,9 @@ class Distribute(models.Model):
 
 class DayByDayProducts(models.Model):
     product_id=models.CharField(null=True,blank=True,max_length=30)
-    manufacturer_id=models.CharField(null=True,blank=True,max_length=50)
+    manufacturer_id=models.CharField(null=True,blank=True,max_length=25)
     product_name=models.CharField(null=True,blank=True,max_length=25)
-    product_quantity=models.CharField(null=True,blank=True,max_length=10)
+    product_quantity=models.CharField(null=True,blank=True,max_length=20)
     date=models.DateField(date.today())
     
     def __str__(self) -> str:
@@ -53,9 +53,9 @@ class DayByDayProducts(models.Model):
 
 class DayByDayProductsDistribute(models.Model):
     product_id=models.CharField(null=True,blank=True,max_length=30)
-    manufacturer_id=models.CharField(null=True,blank=True,max_length=50)
-    product_quantity=models.CharField(null=True,blank=True,max_length=10)
-    distributor_id=models.CharField(null=True,blank=True,max_length=50)
+    manufacturer_id=models.CharField(null=True,blank=True,max_length=25)
+    product_quantity=models.CharField(null=True,blank=True,max_length=20)
+    distributor_id=models.CharField(null=True,blank=True,max_length=25)
     date=models.DateField(date.today())
     
     def __str__(self):

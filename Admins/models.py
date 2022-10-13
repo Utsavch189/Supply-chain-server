@@ -4,7 +4,7 @@ from datetime import date,datetime
 class ApprovedUsers(models.Model):
     name=models.CharField(null=True,blank=True,max_length=40)
     phone=models.CharField(null=True,blank=True,max_length=15)
-    email=models.CharField(null=True,blank=True,max_length=40)
+    email=models.CharField(null=True,blank=True,max_length=46)
     password=models.CharField(null=True,blank=True,max_length=256)
     gender=models.CharField(null=True,blank=True,max_length=6)
     whatsapp_no=models.CharField(null=True,blank=True,max_length=15)
@@ -19,7 +19,7 @@ class ApprovedUsers(models.Model):
 class DeletedUsers(models.Model):
     name=models.CharField(null=True,blank=True,max_length=40)
     phone=models.CharField(null=True,blank=True,max_length=15)
-    email=models.CharField(null=True,blank=True,max_length=40)
+    email=models.CharField(null=True,blank=True,max_length=46)
     password=models.CharField(null=True,blank=True,max_length=256)
     gender=models.CharField(null=True,blank=True,max_length=6)
     whatsapp_no=models.CharField(null=True,blank=True,max_length=15)

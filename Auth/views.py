@@ -55,14 +55,20 @@ def createuser(request):
     gender=body['gender']
     role=body['role']
     password=body['password']
-   
-    try:
-        idd=creates()
-        x=Register(name=name,phone=number,email=email,password=make_password(password),gender=gender,whatsapp_no=whatsapp_no,role=role,id_no=idd,created_at=date.today())
-        x.save()
-        return Response({"msg":"Successfully Registered","status":200})
-    except:
-        return Response({"msg":"Something Wrong","status":400})
+    obb=ApprovedUsers.objects.filter(email=email)
+    obj=Register.objects.filter(email=email)
+
+    if (not obb.exists()) and (not obj.exists()):
+        return Response({"msg":"Email Already Exists","status":400})
+    
+    else:  
+        try:
+            idd=creates()
+            x=Register(name=name,phone=number,email=email,password=make_password(password),gender=gender,whatsapp_no=whatsapp_no,role=role,id_no=idd,created_at=date.today())
+            x.save()
+            return Response({"msg":"Successfully Registered","status":200})
+        except:
+            return Response({"msg":"Something Wrong","status":400})
 
 
 @api_view(['POST'])
