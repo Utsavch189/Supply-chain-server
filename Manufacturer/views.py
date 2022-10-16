@@ -304,23 +304,33 @@ def post_dayBYdayDistribute(request):
     p_id=body['p_id']
     quant=body['quant']
 
-    main_obj=DayByDayProductsDistribute.objects.filter(product_id=p_id).filter(manufacturer_id=manu_id).filter(distributor_id=dist_id).filter(date=date.today())
-    if main_obj.exists():
-        try:
-            pre_quant=main_obj.values('product_quantity')[0]['product_quantity']
-            main_obj.update(product_quantity=str(int(quant)+int(pre_quant)))
-            return Response({"msg":"Distributed","status":200})
-        except:
-            return Response({"msg":"error","status":400})
+    obb=ManufacturerStock.objects.filter(manufacturer_id=manu_id)
+    obb1=obb.filter(Product_id=p_id)
+    pre_stock=obb1.values('production_no')[0]['production_no']
+
+
+    if(int(pre_stock)-int(quant)>=0):
+
+        main_obj=DayByDayProductsDistribute.objects.filter(product_id=p_id).filter(manufacturer_id=manu_id).filter(distributor_id=dist_id).filter(date=date.today())
+        if main_obj.exists():
+            try:
+                pre_quant=main_obj.values('product_quantity')[0]['product_quantity']
+                main_obj.update(product_quantity=str(int(quant)+int(pre_quant)))
+                return Response({"msg":"Distributed","status":200})
+            except:
+                return Response({"msg":"error","status":400})
         
 
+        else:
+            try:
+                y=DayByDayProductsDistribute(product_id=p_id,manufacturer_id=manu_id,product_quantity=quant,distributor_id=dist_id,date=date.today())
+                y.save()
+                return Response({"msg":"Distributed","status":200})
+            except:
+                return Response({"msg":"error","status":400})
+
     else:
-        try:
-            y=DayByDayProductsDistribute(product_id=p_id,manufacturer_id=manu_id,product_quantity=quant,distributor_id=dist_id,date=date.today())
-            y.save()
-            return Response({"msg":"Distributed","status":200})
-        except:
-            return Response({"msg":"error","status":400})
+        return Response({"msg":"Stock Limit exceed!","status":400})
 
 
 

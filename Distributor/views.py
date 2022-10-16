@@ -182,23 +182,32 @@ def post_dayBYdayDistribute(request):
     p_id=body['p_id']
     quant=body['quant']
 
-    main_obj=DayByDayProductsDistributeToRetailer.objects.filter(product_id=p_id).filter(distributor_id=dist_id).filter(retailer_id=retailer_id).filter(date=date.today())
-    if main_obj.exists():
-        try:
-            pre_quant=main_obj.values('product_quantity')[0]['product_quantity']
-            main_obj.update(product_quantity=str(int(quant)+int(pre_quant)))
-            return Response({"msg":"Distributed","status":200})
-        except:
-            return Response({"msg":"error","status":400})
+    obb=DistributorStock.objects.filter(distributor_id=dist_id)
+    obb1=obb.filter(product_id=p_id)
+    pre_stock=obb1.values('product_quantity')[0]['product_quantity']
+
+    if(int(pre_stock)-int(quant)>=0):
+
+        main_obj=DayByDayProductsDistributeToRetailer.objects.filter(product_id=p_id).filter(distributor_id=dist_id).filter(retailer_id=retailer_id).filter(date=date.today())
+        if main_obj.exists():
+            try:
+                pre_quant=main_obj.values('product_quantity')[0]['product_quantity']
+                main_obj.update(product_quantity=str(int(quant)+int(pre_quant)))
+                return Response({"msg":"Distributed","status":200})
+            except:
+                return Response({"msg":"error","status":400})
         
+        else:
+            try:
+                y=DayByDayProductsDistributeToRetailer(product_id=p_id,retailer_id=retailer_id,product_quantity=quant,distributor_id=dist_id,date=date.today())
+                y.save()
+                return Response({"msg":"Distributed","status":200})
+            except:
+                return Response({"msg":"error","status":400})
 
     else:
-        try:
-            y=DayByDayProductsDistributeToRetailer(product_id=p_id,retailer_id=retailer_id,product_quantity=quant,distributor_id=dist_id,date=date.today())
-            y.save()
-            return Response({"msg":"Distributed","status":200})
-        except:
-            return Response({"msg":"error","status":400})
+        return Response({"msg":"Stock Limit Exceed","status":400})
+
 
 
 @api_view(['GET'])
