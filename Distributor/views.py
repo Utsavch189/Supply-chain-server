@@ -62,7 +62,7 @@ def receive_stock_history(request):
     prod_data=[]
     if main_obj.exists():
         for i in range(0,main_obj.count()):
-            data=[ApprovedUsers.objects.filter(id=main_obj.values('manufacturer_id')[i]['manufacturer_id']).values('name')[0]['name'],main_obj.values('product_id')[i]['product_id'],SetProduct.objects.filter(Product_id=main_obj.values('product_id')[i]['product_id']).values('name')[0]['name'],main_obj.values('product_quantity')[i]['product_quantity'],main_obj.values('date')[i]['date']]
+            data=[ApprovedUsers.objects.filter(id_no=main_obj.values('manufacturer_id')[i]['manufacturer_id']).values('name')[0]['name'],main_obj.values('product_id')[i]['product_id'],SetProduct.objects.filter(Product_id=main_obj.values('product_id')[i]['product_id']).values('name')[0]['name'],main_obj.values('product_quantity')[i]['product_quantity'],main_obj.values('date')[i]['date']]
             prod_data.append(data)
         return Response({"data":prod_data,"head":prod_head,"status":200})
     else:
