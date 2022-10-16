@@ -58,7 +58,7 @@ def createuser(request):
     obb=ApprovedUsers.objects.filter(email=email)
     obj=Register.objects.filter(email=email)
 
-    if (not obb.exists()) and (not obj.exists()):
+    if (obb.exists()) and (obj.exists()):
         return Response({"msg":"Email Already Exists","status":400})
     
     else:  
