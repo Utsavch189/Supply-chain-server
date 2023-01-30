@@ -29,10 +29,8 @@ def login(request):
                 data={
                     "uid":obj.values('email')[0]['email'],
                     "password":(obj.values('password')[0]['password']),
-                    "name":obj.values('name')[0]['name'],
                     "id":obj.values('id_no')[0]['id_no'],
                     "role":obj.values('role')[0]['role'],
-                    "phone":obj.values('phone')[0]['phone'],
                     "account_creates":obj.values('approved_at')[0]['approved_at'].strftime('%m/%d/%Y')
                 }
                 a=auths(data,"")
