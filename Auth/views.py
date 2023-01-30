@@ -8,12 +8,11 @@ from .UID import creates
 import random
 from .Mail import otp_mail,passwordUpdate_mail,middle_otp_mail
 from Admins.models import ApprovedUsers
-from .Enc_Dec import encryption,decryption
 from .Send_Sms import send
 from django.contrib.auth.hashers import make_password,check_password
 
 
-@api_view(['POST','GET'])
+@api_view(['POST'])
 def login(request):
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
@@ -29,8 +28,10 @@ def login(request):
                 data={
                     "uid":obj.values('email')[0]['email'],
                     "password":(obj.values('password')[0]['password']),
+                    "name":obj.values('name')[0]['name'],
                     "id":obj.values('id_no')[0]['id_no'],
                     "role":obj.values('role')[0]['role'],
+                    "phone":obj.values('phone')[0]['phone'],
                     "account_creates":obj.values('approved_at')[0]['approved_at'].strftime('%m/%d/%Y')
                 }
                 a=auths(data,"")

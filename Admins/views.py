@@ -8,7 +8,6 @@ from datetime import date
 from Auth.Mail import approve_mail,removeUser_mail,Reapprove_mail
 from django.http import HttpResponse
 from decouple import config
-from Manufacturer.models import SetProduct,Distribute
 import random
 
 service=config('admin_service')
