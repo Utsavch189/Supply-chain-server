@@ -16,10 +16,8 @@ service=config('admin_service')
 
 @api_view(['GET'])
 def requests(request):
-    if  (Authorization(request,service))==401:
+    if (Authorization(request,service))==401:
         return HttpResponse('Request Denied', status=401)
-    
-    
     users=[]
     alls=Register.objects.all()
     if alls.exists():
@@ -40,8 +38,6 @@ def requests(request):
         return Response(users)
 
     return Response({"msg":"no data"})
-    
-    
 
 
 @api_view(['GET'])
@@ -125,9 +121,6 @@ def approve_a_user(request):
                 return Response({"msg":"successfully created!","status":200})
             except:
                 return Response({"msg":"error!","status":400})
-
-        
-    
 
 
 @api_view(['POST'])

@@ -25,7 +25,6 @@ admin.site.site_title='U-HUB Portal'
 admin.site.index_title='Utsav Chatterjee'
 
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/',include('Auth.urls')),

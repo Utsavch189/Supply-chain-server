@@ -14,7 +14,7 @@ from django.contrib.auth.hashers import make_password,check_password
 
 
 @api_view(['POST','GET'])
-def jwt(request):
+def login(request):
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
     email=body['uid']

@@ -28,7 +28,6 @@ class auths:
 
 def Authorization(request,types):
     if request.META.get('HTTP_AUTHORIZATION'):
-        
         header= request.META.get('HTTP_AUTHORIZATION')
         res = (header.split(' ', 1)[1])
         dec=jwt.decode(res, key, algorithms=algo)
